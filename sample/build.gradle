@@ -1,0 +1,78 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion build_versions.compile_sdk
+    buildToolsVersion build_versions.build_tools
+    defaultConfig {
+        applicationId "com.sktlab.android.base.sample"
+        minSdkVersion build_versions.min_sdk
+        targetSdkVersion build_versions.target_sdk
+        versionCode 1
+        versionName "1.0"
+
+        buildConfigField "String", "APP_NAME", "\"Sample\""
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    signingConfigs {
+        release {
+            keyAlias 'key'
+            keyPassword '@sktlab_android'
+            storePassword '@sktlab_android'
+            storeFile file('/Users/kunniu/AndroidStudioProjects/SKTLab/KeyStore/sktlab_android_apps.keystore.jks')
+        }
+    }
+    buildTypes {
+        release {
+            // Enables code shrinking, obfuscation, and optimization for only
+            // your project's release build type.
+            minifyEnabled true
+
+            // Enables resource shrinking, which is performed by the
+            // Android Gradle plugin.
+            shrinkResources true
+
+            // Includes the default ProGuard rules files that are packaged with
+            // the Android Gradle plugin. To learn more, go to the section about
+            // R8 configuration files.
+            proguardFiles getDefaultProguardFile(
+                    'proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
+
+            signingConfig signingConfigs.release
+        }
+        debug {
+            minifyEnabled false
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildFeatures {
+        viewBinding = true
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(':base')
+    testImplementation deps.junit
+    androidTestImplementation deps.android_test.ext
+    androidTestImplementation deps.android_test.espresso
+
+    implementation deps.constraintlayout
+    implementation deps.material
+    implementation deps.cardview
+    implementation deps.fragment
+
+    implementation deps.okhttp.okhttp
+    implementation deps.okhttp.logging_interceptor
+    implementation deps.gson
+    implementation deps.apache_commons
+    implementation deps.glide.glide
+    annotationProcessor deps.glide.compiler
+    implementation deps.butterknife.butterknife
+    annotationProcessor deps.butterknife.compiler
+
+}
