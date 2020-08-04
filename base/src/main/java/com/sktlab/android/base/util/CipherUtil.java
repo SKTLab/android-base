@@ -1,8 +1,13 @@
 package com.sktlab.android.base.util;
 
+import android.security.keystore.KeyProperties;
 import android.util.Base64;
 
+import androidx.annotation.NonNull;
+
 import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class CipherUtil {
     private static final int DEFAULT_FLAG = Base64.URL_SAFE | Base64.NO_WRAP;
@@ -65,12 +70,31 @@ public class CipherUtil {
         return result;
     }
 
-    public static String byteArrayToHexString(byte[] data) {
+    public static String toHexString(@NonNull String data) {
+        return toHexString(data.getBytes());
+    }
+
+    public static String toHexString(@NonNull byte[] data) {
         char[] out = new char[data.length << 1];
         for (int i = 0, j = 0; i < data.length; i++) {
             out[j++] = DIGITS_LOWER[(0xF0 & data[i]) >>> 4];
             out[j++] = DIGITS_LOWER[0x0F & data[i]];
         }
         return new String(out);
+    }
+
+    public static byte[] getSHA256Hash(byte[] data) {
+        try {
+            MessageDigest sha256 = MessageDigest.getInstance(KeyProperties.DIGEST_SHA256);
+            sha256.update(data);
+            return sha256.digest();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] getSHA256Hash(String data) {
+        return getSHA256Hash(data.getBytes());
     }
 }

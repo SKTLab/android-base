@@ -10,6 +10,8 @@ import androidx.viewbinding.ViewBinding;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import butterknife.ButterKnife;
+
 public abstract class BaseActivity<T extends ViewBinding> extends AppCompatActivity {
     protected T binding;
 
@@ -19,6 +21,7 @@ public abstract class BaseActivity<T extends ViewBinding> extends AppCompatActiv
         binding = getBinding();
         setContentView(binding.getRoot());
         EventBus.getDefault().register(this);
+        ButterKnife.bind(this);
     }
 
     @Override

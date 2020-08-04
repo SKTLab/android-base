@@ -13,6 +13,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.UnrecoverableEntryException;
@@ -69,13 +70,11 @@ public class KeyHelper {
         if (keyStoreContainsAlias(alias)) {
             try {
                 KeyStore keyStore = getKeyStore();
-                KeyStore.Entry entry = keyStore.getEntry(alias, null);
-                if (entry instanceof KeyStore.PrivateKeyEntry) {
-                    Signature sign = Signature.getInstance(ALGORITHM_SIGN);
-                    sign.initSign(((KeyStore.PrivateKeyEntry) entry).getPrivateKey());
-                    sign.update(data);
-                    return sign.sign();
-                }
+                PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, null);
+                Signature sign = Signature.getInstance(ALGORITHM_SIGN);
+                sign.initSign(privateKey);
+                sign.update(data);
+                return sign.sign();
             } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | InvalidKeyException | SignatureException | UnrecoverableEntryException e) {
                 e.printStackTrace();
                 Log.e(TAG, "sign exception " + e.toString());
@@ -87,15 +86,11 @@ public class KeyHelper {
     public static boolean verifyInKeyStore(String alias, byte[] data, byte[] signature) {
         if (keyStoreContainsAlias(alias)) {
             try {
-                KeyStore keyStore = getKeyStore();
-                KeyStore.Entry entry = keyStore.getEntry(alias, null);
-                if (entry instanceof KeyStore.PrivateKeyEntry) {
-                    Signature sign = Signature.getInstance(ALGORITHM_SIGN);
-                    sign.initVerify(((KeyStore.PrivateKeyEntry) entry).getCertificate());
-                    sign.update(data);
-                    return sign.verify(signature);
-                }
-            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | InvalidKeyException | SignatureException | UnrecoverableEntryException e) {
+                Signature sign = Signature.getInstance(ALGORITHM_SIGN);
+                sign.initVerify(getKeyStore().getCertificate(alias));
+                sign.update(data);
+                return sign.verify(signature);
+            } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | InvalidKeyException | SignatureException e) {
                 e.printStackTrace();
                 Log.e(TAG, "sign exception " + e.toString());
             }

@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -14,15 +16,19 @@ import androidx.viewbinding.ViewBinding;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 public abstract class BaseFragment<T extends ViewBinding> extends Fragment {
-    public static final String TAG = "BaseFragment";
     protected T binding;
+    private Unbinder unbinder;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = getBinding(inflater, container);
         EventBus.getDefault().register(this);
+        unbinder = ButterKnife.bind(this, binding.getRoot());
         createView();
         return binding.getRoot();
     }
@@ -46,6 +52,7 @@ public abstract class BaseFragment<T extends ViewBinding> extends Fragment {
     @Override
     public void onDestroyView() {
         EventBus.getDefault().unregister(this);
+        unbinder.unbind();
         binding = null;
         super.onDestroyView();
     }
@@ -65,5 +72,10 @@ public abstract class BaseFragment<T extends ViewBinding> extends Fragment {
 
     public void toast(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+    }
+
+    @ColorInt
+    public int getColor(@ColorRes int id) {
+        return getContext().getColor(id);
     }
 }
